@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Book;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreBookRequest extends FormRequest
 {
@@ -25,8 +27,7 @@ class StoreBookRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'author' => 'required|string|max:255',
-            'isbn' => 'nullable|string|max:13|unique:books,isbn',
+            'isbn' => 'nullable|string|max:255|unique:books,isbn',
             'pages' => 'nullable|integer|min:1',
             'price' => 'nullable|numeric|min:0',
             'language' => 'nullable|string|max:10',
@@ -35,5 +36,16 @@ class StoreBookRequest extends FormRequest
             'published_date' => 'nullable|date',
             'status' => 'nullable|string|in:available,borrowed,reserved',
         ];
+    }
+
+    /**
+     * Agar validatsiya muvaffaqiyatsiz bo'lsa, JSON javob qaytaradi.
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'message' => 'Validation error',
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }
