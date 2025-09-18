@@ -11,43 +11,59 @@ use Illuminate\Http\Request;
 class AuthController extends Controller
 {
     public function __construct(
-        protected AuthService $authService
+        private AuthService $authService
     ) {}
 
+    // 1. Login
     public function login(LoginAuthRequest $request): JsonResponse
     {
-        $user = $this->authService->login($request->validated());
+        try {
+            $user = $this->authService->login($request->validated());
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'user' => $user,
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name'),
-            'token' => $token,
-        ]);
+            return response()->json([
+                'user' => $user,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
+                'token' => $token,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 401);
+        }
     }
 
+    // 2. Register
     public function register(RegisterAuthRequest $request): JsonResponse
     {
-        $user = $this->authService->register($request->validated());
-        $token = $user->createToken('auth_token')->plainTextToken;
+        try {
+            $user = $this->authService->register($request->validated());
 
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user,
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name'),
-            'token' => $token,
-        ], 201);
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'User registered successfully',
+                'user' => $user,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
+                'token' => $token,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    public function logout(Request $request)
+    // 3. Logout
+    public function logout(Request $request): JsonResponse
     {
-        $this->authService->logout($request);
+        try {
+            $this->authService->logout($request);
 
-        return response()->json([
-            'message' => 'Successfully logged out'
-        ]);
+            return response()->json([
+                'message' => 'Successfully logged out'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 }
