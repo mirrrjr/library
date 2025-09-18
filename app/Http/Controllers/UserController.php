@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
@@ -12,32 +13,41 @@ class UserController extends Controller
         private UserService $userService
     ) {}
 
+    // 1. Barcha foydalanuvchilar
     public function index(): JsonResponse
     {
-        $users = $this->userService->getAllUsers();
-
-        return response()->json([
-            'data' => $users
-        ]);
-    }
-
-    public function show(int $id)
-    {
-        $user = $this->userService->getUserById($id);
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+        try {
+            $users = $this->userService->getAllUsers();
+            return response()->json(['data' => $users], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
         }
-
-        return response()->json([
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'roles' => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name')->unique(),
-            ]
-        ]);
     }
 
+    // 2. Bitta foydalanuvchi
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $user = $this->userService->getUserById($id);
+
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'roles' => $user->getRoleNames(),
+                    'permissions' => $user->getAllPermissions()->pluck('name')->unique(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
+
+    // 3. Foydalanuvchini yangilash
     public function update(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
@@ -47,22 +57,41 @@ class UserController extends Controller
             'role' => 'sometimes|string|exists:roles,name',
         ]);
 
-        $user = $this->userService->updateUser($id, $validated);
+        try {
+            $user = $this->userService->getUserById($id);
 
-        return response()->json([
-            'message' => 'User updated successfully',
-            'data' => $user,
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name')->unique(),
-        ]);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+
+            Gate::authorize('update', $user);
+
+            $updatedUser = $this->userService->updateUser($user, $validated);
+
+            return response()->json([
+                'message' => 'User updated successfully',
+                'data' => $updatedUser,
+                'roles' => $updatedUser->getRoleNames(),
+                'permissions' => $updatedUser->getAllPermissions()->pluck('name')->unique(),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
+    // 4. Foydalanuvchining kitoblari
     public function books(int $id): JsonResponse
     {
-        $books = $this->userService->getUserBooks($id);
+        try {
+            $books = $this->userService->getUserBooks($id);
 
-        return response()->json([
-            'data' => $books
-        ]);
+            if ($books === null) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+
+            return response()->json(['data' => $books], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 }

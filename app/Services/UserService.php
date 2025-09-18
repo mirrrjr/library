@@ -3,14 +3,14 @@
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Collection;
 
 class UserService
 {
+    // 1. Barcha foydalanuvchilar
     public function getAllUsers(): Collection
     {
-        $users = User::with('roles')->get()->map(function ($user) {
+        return User::with('roles')->get()->map(function ($user) {
             return [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -18,34 +18,33 @@ class UserService
                 'permissions' => $user->getAllPermissions()->pluck('name')->unique(),
             ];
         });
-
-        return $users;
     }
 
-    public function updateUser(int $id, array $data)
+    // 2. Bitta foydalanuvchi
+    public function getUserById(int $id): ?User
     {
-        Gate::authorize('update', $this->getUserById($id));
+        return User::find($id);
+    }
 
-        $user = $this->getUserById($id);
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
+    // 3. Foydalanuvchini yangilash
+    public function updateUser(User $user, array $data): User
+    {
         $user->update($data);
 
         if (isset($data['role'])) {
             $user->syncRoles([$data['role']]);
         }
+
         return $user;
     }
 
-    public function getUserBooks(int $id)
+    // 4. Foydalanuvchi kitoblari
+    public function getUserBooks(int $id): ?Collection
     {
         $user = $this->getUserById($id);
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return null;
         }
 
         return $user->books()->with('user')->get()->map(function ($book) {
@@ -56,12 +55,5 @@ class UserService
                 'published_at' => $book->published_at,
             ];
         });
-    }
-
-    public function getUserById(int $id): ?User
-    {
-        $user = User::find($id);
-
-        return $user;
     }
 }
