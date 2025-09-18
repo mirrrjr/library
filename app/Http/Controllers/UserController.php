@@ -56,4 +56,13 @@ class UserController extends Controller
             'permissions' => $user->getAllPermissions()->pluck('name')->unique(),
         ]);
     }
+
+    public function books(int $id): JsonResponse
+    {
+        $books = $this->userService->getUserBooks($id);
+
+        return response()->json([
+            'data' => $books
+        ]);
+    }
 }

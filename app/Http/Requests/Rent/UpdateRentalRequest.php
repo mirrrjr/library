@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Book;
+namespace App\Http\Requests\Rent;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRentalRequest extends FormRequest
+class UpdateRentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

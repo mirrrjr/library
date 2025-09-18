@@ -40,6 +40,24 @@ class UserService
         return $user;
     }
 
+    public function getUserBooks(int $id)
+    {
+        $user = $this->getUserById($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return $user->books()->with('user')->get()->map(function ($book) {
+            return [
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->user->name,
+                'published_at' => $book->published_at,
+            ];
+        });
+    }
+
     public function getUserById(int $id): ?User
     {
         $user = User::find($id);
