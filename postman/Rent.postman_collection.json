@@ -1,0 +1,106 @@
+{
+	"info": {
+		"_postman_id": "1f6675fa-537a-418b-a3ce-07c5f535c7de",
+		"name": "Rent",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43126484",
+		"_collection_link": "https://www.postman.com/house-api-team/workspace/library/collection/43126484-1f6675fa-537a-418b-a3ce-07c5f535c7de?action=share&source=collection_link&creator=43126484"
+	},
+	"item": [
+		{
+			"name": "Get All Rents",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/rentals/active",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"rentals",
+						"active"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Book",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/rentals/rent/2",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"rentals",
+						"rent",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Return Book",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/rentals/return/3",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"rentals",
+						"return",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

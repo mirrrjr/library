@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "10a1fbb9-d0b2-44c7-83db-57a96f5ae3fc",
+		"name": "Statistics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43126484",
+		"_collection_link": "https://www.postman.com/house-api-team/workspace/library/collection/43126484-10a1fbb9-d0b2-44c7-83db-57a96f5ae3fc?action=share&source=collection_link&creator=43126484"
+	},
+	"item": [
+		{
+			"name": "Most read",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/reports/most-read",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"reports",
+						"most-read"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authors",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/reports/authors",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"reports",
+						"authors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Current Rentals",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/reports/current-rented",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"reports",
+						"current-rented"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
