@@ -8,7 +8,6 @@ use App\Models\Book;
 use App\Services\BookService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class BookController extends Controller
@@ -17,72 +16,79 @@ class BookController extends Controller
         private BookService $bookService
     ) {}
 
-    /**
-     * Display a listing of the resource.
-     */
+    // 1. Barcha kitoblarni ko‘rish (filtrlash bilan)
     public function index(Request $request): JsonResponse
     {
-        $books = $this->bookService->getAllBooksQuery($request->all());
+        try {
+            $books = $this->bookService->getAllBooksQuery($request->all());
 
-        return response()->json([
-            'data' => $books
-        ]);
+            return response()->json(['data' => $books], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
+    // 2. Bitta kitobni ko‘rish
     public function show(int $id): JsonResponse
     {
-        $book = $this->bookService->getBookById($id);
+        try {
+            $book = $this->bookService->getBookById($id);
 
-        return response()->json([
-            'data' => $book
-        ]);
+            if (!$book) {
+                return response()->json(['error' => 'Book not found'], 404);
+            }
+
+            return response()->json(['data' => $book], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // 3. Yangi kitob qo‘shish
     public function store(StoreBookRequest $request): JsonResponse
     {
         Gate::authorize('create', Book::class);
 
-        $validated = $request->validated();
+        try {
+            $book = $this->bookService->createBook($request->validated());
 
-        $book = $this->bookService->createBook($validated);
-
-        return response()->json([
-            'message' => 'Book created successfully',
-            'data' => $book
-        ], 201);
+            return response()->json([
+                'message' => 'Book created successfully',
+                'data' => $book
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateBookRequest $request, Book $book)
+    // 4. Kitobni tahrirlash
+    public function update(UpdateBookRequest $request, Book $book): JsonResponse
     {
         Gate::authorize('update', $book);
 
-        $validated = $request->validated();
+        try {
+            $updatedBook = $this->bookService->updateBook($book, $request->validated());
 
-        $updatedBook = $this->bookService->updateBook($book, $validated);
-
-        return response()->json([
-            'message' => 'Book updated successfully',
-            'data' => $updatedBook
-        ]);
+            return response()->json([
+                'message' => 'Book updated successfully',
+                'data' => $updatedBook
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // 5. Kitobni o‘chirish
     public function destroy(Book $book): JsonResponse
     {
         Gate::authorize('delete', $book);
 
-        $this->bookService->deleteBook($book);
+        try {
+            $this->bookService->deleteBook($book);
 
-        return response()->json([
-            'message' => 'Book deleted successfully'
-        ]);
+            return response()->json(['message' => 'Book deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 }

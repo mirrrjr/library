@@ -7,6 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class BookService
 {
+    // 1. Barcha kitoblarni olish (filtrlash bilan)
     public function getAllBooksQuery(array $data): LengthAwarePaginator
     {
         return Book::query()
@@ -15,46 +16,33 @@ class BookService
             ->when(!empty($data['author']), fn($q) =>
                 $q->whereHas('user', fn($query) =>
                     $query->where('name', 'like', '%' . $data['author'] . '%')))
-            ->where(
-                'status',
-                'available',
-            )
+            ->where('status', 'available')
+            ->with('user')
             ->paginate(20);
     }
 
-    public function createBook(array $data): Book
-    {
-        try {
-            $newBook = Book::create($data);
-
-            return $newBook;
-        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            abort(403, 'You do not have permission to create a book.');
-        }
-    }
-
-    public function updateBook(Book $book, array $data): Book
-    {
-        try {
-            $book->update($data);
-
-            return $book;
-        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            abort(403, 'You do not have permission to update this book.');
-        }
-    }
-
-    public function deleteBook(Book $book): void
-    {
-        try {
-            $book->delete();
-        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            abort(403, 'You do not have permission to delete this book.');
-        }
-    }
-
+    // 2. Bitta kitobni olish
     public function getBookById(int $id): ?Book
     {
-        return Book::find($id);
+        return Book::with('user')->find($id);
+    }
+
+    // 3. Kitob qo‘shish
+    public function createBook(array $data): Book
+    {
+        return Book::create($data);
+    }
+
+    // 4. Kitobni yangilash
+    public function updateBook(Book $book, array $data): Book
+    {
+        $book->update($data);
+        return $book;
+    }
+
+    // 5. Kitobni o‘chirish
+    public function deleteBook(Book $book): void
+    {
+        $book->delete();
     }
 }
