@@ -35,6 +35,7 @@ class UpdateBookRequest extends FormRequest
             'cover' => 'nullable|string|max:255',
             'published_date' => 'nullable|date',
             'status' => 'nullable|string|in:available,borrowed,reserved',
+            'returned_at' => 'nullable',
         ];
     }
 

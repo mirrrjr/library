@@ -2,57 +2,54 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Rent\StoreRentRequest;
-use App\Http\Requests\Rent\UpdateRentRequest;
-use App\Models\Rental;
+use App\Services\RentalService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RentalController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(
+        private RentalService $rentalService
+    ) {}
+
+    // 1. Kitobni ijaraga berish
+    public function rentBook(Request $request, int $bookId): JsonResponse
     {
-        //
+        $validated = $request->validate([
+            'rented_at' => 'date|nullable',
+            'due_at' => 'date|nullable',
+        ]);
+
+        try {
+            $rental = $this->rentalService->rentBook($bookId, $validated);
+            return response()->json(['data' => $rental], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // 2. Kitobni qaytarish
+    public function returnBook(int $rentalId): JsonResponse
     {
-        //
+        try {
+            $rental = $this->rentalService->returnBook($rentalId);
+            return response()->json(['data' => $rental], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreRentRequest $request)
+    // 3. Joriy ijaralar
+    public function activeRentals(): JsonResponse
     {
-        //
+        $rents = $this->rentalService->getActiveRentals();
+        return response()->json(['data' => $rents], 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Rental $rental)
+    // 4. Muddati o‘tgan ijaralar
+    public function overdueRentals(): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateRentRequest $request, Rental $rental)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Rental $rental)
-    {
-        //
+        $expireds = $this->rentalService->getOverdueRentals();
+        return response()->json(['data' => $expireds], 200);
     }
 }

@@ -34,7 +34,8 @@ class StoreBookRequest extends FormRequest
             'publisher' => 'nullable|string|max:255',
             'cover' => 'required|string|max:255',
             'published_date' => 'nullable|date',
-            'status' => 'nullable|string|in:available,borrowed,reserved',
+            'status' => 'nullable|string|in:available,rented,reserved',
+            'returned_at' => 'nullable',
         ];
     }
 
